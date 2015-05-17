@@ -121,14 +121,12 @@ namespace System.IO.Csv
             this.parsingFile = true;
 
             string buffer = "";
-            string dblQuot = new string(_quot, 2);
-            string bsQuot = "\\" + _quot.ToString();
 
             foreach (string line in this.ReadLines())
             {
                 if (buffer != "" || line.TrimStart()[0] != _cmnt)
                 {
-                    var result = this.ParseLine((buffer == "" ? "" : buffer + CrLf) + line);
+                    var result = this.ParseLine(buffer == "" ? line : buffer + CrLf + line);
                     if (result.Item1)
                     {
                         buffer = "";
