@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -42,6 +42,27 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+IF $(ConfigurationName)==Release (
+  FOR /F "delims=" %25%25T IN ('powershell get-date -format "u"') DO (
+    ECHO Build Date:   %25%25T &gt;BuildInfo.txt
+  )
+  ECHO Build Config: $(ConfigurationName) &gt;&gt;BuildInfo.txt
+  ECHO Platform:     $(PlatformName) &gt;&gt;BuildInfo.txt
+  TYPE BuildInfo.txt
+)</PreBuildEvent>
+</PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+IF $(ConfigurationName)==Release (
+  ECHO .pdb &gt;..\exclude.txt
+  ECHO .tmp &gt;&gt;..\exclude.txt
+  XCOPY "$(TargetDir)*.*" "$(SolutionDir).bin\$(ProjectName)\" /s /c /y /exclude:..\exclude.txt
+  DEL BuildInfo.txt
+  DEL ..\exclude.txt
+)</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
